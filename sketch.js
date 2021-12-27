@@ -13,6 +13,9 @@ let regions = [];
 let popups = [];
 function setup() {
 	createCanvas(windowWidth, windowHeight);
+	// initialize coordWidthScaleFactor constant (needed in popup constructor)
+	coordWidthScaleFactor = coordinateWidth / width;
+
 	const swedishFlag = new Region(swedishFlagImg, 800, 83, 110, null, true, (region) => {
 		statusText = "sweden is bae";
 		region.hide();
@@ -45,6 +48,9 @@ let backgroundHeightScaleFactor;
 
 let statusText = "";
 let currentPopup = null;
+
+// popup scrolling from https://gist.github.com/companje/5478fff07a18a1f4806df4cf77ae1048
+const zoom = .005; // zoom step per mouse tick 
 
 function draw() {
 	background(255, 255, 255);
@@ -88,7 +94,7 @@ function mouseMoved() {
 		const x = getMouseX();
 		const y = getMouseY();
 		for (const region of regions) {
-			if (region.isWithin(x, y)) {
+			if (region.isWithin(x, y) && region.visible) {
 				region.mouseOver = true;
 			} else {
 				region.mouseOver = false;
@@ -98,13 +104,13 @@ function mouseMoved() {
 }
 
 function mousePressed() {
+	const x = getMouseX();
+	const y = getMouseY();
 	if (currentPopup == null) {
-		const x = getMouseX();
-		const y = getMouseY();
 
 		let foundRegion = false;
 		for (const region of regions) {
-			if (region.isWithin(x, y) && region.clickCallback) {
+			if (region.isWithin(x, y) && region.visible && region.clickCallback) {
 				region.clickCallback(region);
 				foundRegion = true;
 			}
@@ -114,7 +120,55 @@ function mousePressed() {
 			statusText = "";
 		}
 	} else {
-		setPopup(null);
+		if (!currentPopup.isWithin(x, y)) {
+			setPopup(null);
+		}
+	}
+}
+
+function mouseDragged() {
+	if (currentPopup) {
+		currentPopup.tox += getMouseX() - pmouseX * coordWidthScaleFactor;
+		currentPopup.toy += getMouseY() - pmouseY * coordHeightScaleFactor;
+
+		currentPopup.tox = Math.min(currentPopup.tox, coordinateWidth - currentPopup.width * 0.3);
+		currentPopup.toy = Math.min(currentPopup.toy, coordinateHeight - currentPopup.height * 0.3);
+		currentPopup.tox = Math.max(currentPopup.tox, currentPopup.width * -0.7);
+		currentPopup.toy = Math.max(currentPopup.toy, currentPopup.height * -0.7);
+	}
+}
+
+function mouseWheel(event) {
+	if (currentPopup) {
+	  const e = -event.delta;
+
+	  if (e > 0) { // zoom in
+	  	// if (currentPopup.tow > width * 4) return; // min zoom
+	    for (let i = 0; i < e; i++) {
+	      if (currentPopup.tow > width * 4) return; // max zoom
+	      currentPopup.tox -= zoom * (getMouseX() - currentPopup.tox);
+	      currentPopup.toy -= zoom * (getMouseY() - currentPopup.toy);
+	      currentPopup.tow *= zoom + 1;
+	      currentPopup.toh *= zoom + 1;
+	    }
+	  }
+	  
+	  if (e < 0) { // zoom out
+	    for (let i = 0; i < -e; i++) {
+	      if (currentPopup.tow < width / 8) return; // min zoom
+	      currentPopup.tox += zoom / (zoom + 1) * (getMouseX() - currentPopup.tox); 
+	      currentPopup.toy += zoom / (zoom + 1) * (getMouseY() - currentPopup.toy);
+	      currentPopup.toh /= zoom + 1;
+	      currentPopup.tow /= zoom + 1;
+	    }
+	  }
+
+	  const minWidth = math.min(currentPopup.width * 0.3, width / 2);
+	  const minHeight = math.min(currentPopup.height * 0.3, height / 2)
+		currentPopup.tox = Math.min(currentPopup.tox, coordinateWidth - minWidth);
+		currentPopup.toy = Math.min(currentPopup.toy, coordinateHeight - minHeight);
+		currentPopup.tox = Math.max(currentPopup.tox, currentPopup.width * -0.7);
+		currentPopup.toy = Math.max(currentPopup.toy, currentPopup.height * -0.7);
 	}
 }
 
@@ -175,7 +229,7 @@ class Region {
 
 	isWithin(x, y) {
 		return x >= this.x && x <= this.x + this.width &&
-				   y >= this.y && y <= this.y + this.height && this.visible;
+				   y >= this.y && y <= this.y + this.height;
 	}
 
 	show() {
@@ -191,14 +245,25 @@ class Region {
 class Popup extends Region {
 	constructor(image) {
 		super(image, 0, 0, null, coordinateHeight, false);
+		this.x = ((width * coordWidthScaleFactor) - this.width) / 2;
+
+		this.tow = this.width;
+		this.toh = this.height;
+		this.tox = this.x;
+		this.toy = this.y;
 	}
 
 	draw() {
-		this.x = ((width * coordWidthScaleFactor) - this.width) / 2;
+	  this.x = lerp(this.x, this.tox, .1);
+	  this.y = lerp(this.y, this.toy, .1);
+	  this.width = lerp(this.width, this.tow, .1); 
+	  this.height = lerp(this.height, this.toh, .1);
 
-		const actualRegionWidth = this.width / coordWidthScaleFactor;
-		const actualRegionHeight = this.height / coordHeightScaleFactor;
-		image(this.image, this.x / coordWidthScaleFactor, this.y / coordHeightScaleFactor, actualRegionWidth, actualRegionHeight);
+		const w = this.width / coordWidthScaleFactor; // actualRegionWidth
+		const h = this.height / coordHeightScaleFactor; // actualRegionHeight
+		const x = this.x / coordWidthScaleFactor;
+		const y = this.y / coordHeightScaleFactor;
+		image(this.image, x, y, w, h);
 	}
 }
 
