@@ -1,12 +1,14 @@
 //hide all popups when clicking, make set popup function
 
-let backgroundOneImg, swedishFlagImg, eyeGlassesImg, fossilsOneImg;
+let backgroundOneImg, swedishFlagImg, eyeGlassesImg, fossilsOneImg, downArrowImg, leftArrowImg;
 //you can add your other images here
 function preload() {
 	backgroundOneImg = loadImage('imgs/wallOnefin.jpg');
 	swedishFlagImg = loadImage('imgs/swedishflag.jpg');
 	eyeGlassesImg = loadImage('imgs/eyeGlasses.jpg');
 	fossilsOneImg = loadImage('imgs/fossilsOne.jpg');
+	downArrowImg = loadImage('imgs/downArrow.jpg');
+	leftArrowImg = loadImage('imgs/leftArrow.jpg');
 }
 
 let regions = [];
@@ -17,24 +19,36 @@ function setup() {
 	coordWidthScaleFactor = coordinateWidth / width;
 
 	const swedishFlag = new Region(swedishFlagImg, 800, 83, 110, null, true, (region) => {
-		statusText = "sweden is bae";
+		statusText = "Vad är detta?";
 		region.hide();
 	});
 	const eyeGlasses = new Region(eyeGlassesImg, 879, 438, 50, null, false, (region) => {
-		statusText = "jinkies";
+		statusText = "*You put on the glasses*";
+		region.hide();
 	});
 	const eyeTest = new Region(null, 281, 272, 95, 135, true, (region) => {
-		statusText = "20/20 vision";
+		statusText = "Blind as a bat";
 		setPopup(fossilsOne);
 	});
 	const blanket = new Region(null, 732, 433, 196, 88, true, (region) => {
 		region.hide(); // this stops the region from being magnified on hover
 		eyeGlasses.show();
-		statusText = "You found some glasses";
+		statusText = "Jinkies!";
 	});
+	const downArrow = new Region(downArrowImg, 440, 470, 45, null, true, (region) => {
+		eyeGlasses.hide();
+		region.hide();
+		//How do I hide the background?
+	});
+	const leftArrow = new Region(leftArrowImg, 15, 252, 50, 40, true, (region) => {
+		region.hide();
+		//How do I hide the background?
+	});
+
+
 	const fossilsOne = new Popup(fossilsOneImg);
 
-	regions = [swedishFlag, eyeGlasses, eyeTest, blanket, fossilsOne];
+	regions = [swedishFlag, eyeGlasses, eyeTest, blanket, fossilsOne, downArrow, leftArrow];
 	popups = [fossilsOne];
 }
 
@@ -46,7 +60,7 @@ let coordHeightScaleFactor;
 let imageWidthScaleFactor;
 let backgroundHeightScaleFactor;
 
-let statusText = "";
+let statusText = "You are trapped in a strange room. You will have to figure out how to get out.";
 let currentPopup = null;
 
 // popup scrolling from https://gist.github.com/companje/5478fff07a18a1f4806df4cf77ae1048
