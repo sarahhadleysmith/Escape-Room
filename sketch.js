@@ -1,6 +1,7 @@
 //hide all popups when clicking, make set popup function
 
-let backgroundOneImg, swedishFlagImg, eyeGlassesImg, fossilsOneImg, downArrowImg, leftArrowImg;
+let backgroundOneImg, swedishFlagImg, eyeGlassesImg, fossilsOneImg,
+	downArrowImg, leftArrowImg, upArrowImg, rightArrowImg, tree;
 //you can add your other images here
 function preload() {
 	backgroundOneImg = loadImage('imgs/wallOnefin.jpg');
@@ -9,10 +10,12 @@ function preload() {
 	fossilsOneImg = loadImage('imgs/fossilsOne.jpg');
 	downArrowImg = loadImage('imgs/downArrow.jpg');
 	leftArrowImg = loadImage('imgs/leftArrow.jpg');
+	upArrowImg = loadImage('imgs/upArrow.jpg');
+	rightArrowImg = loadImage('imgs/rightArrow.jpg');
+	treeImg = loadImage('imgs/tree.jpg')
 }
-//hi
-let regions = [];
-let popups = [];
+
+let currentWall;
 function setup() {
 	createCanvas(windowWidth, windowHeight);
 	// initialize coordWidthScaleFactor constant (needed in popup constructor)
@@ -28,28 +31,32 @@ function setup() {
 	});
 	const eyeTest = new Region(null, 281, 272, 95, 135, true, (region) => {
 		statusText = "Blind as a bat";
-		setPopup(fossilsOne);
+		currentWall.setPopup(fossilsOne);
 	});
 	const blanket = new Region(null, 732, 433, 196, 88, true, (region) => {
 		region.hide(); // this stops the region from being magnified on hover
 		eyeGlasses.show();
 		statusText = "Jinkies!";
 	});
-	const downArrow = new Region(downArrowImg, 440, 470, 45, null, true, (region) => {
-		eyeGlasses.hide();
-		region.hide();
-		//How do I hide the background?
-	});
-	const leftArrow = new Region(leftArrowImg, 15, 252, 50, 40, true, (region) => {
-		region.hide();
-		//How do I hide the background?
-	});
-
-
 	const fossilsOne = new Popup(fossilsOneImg);
+	//for each wall, need to put the image, regions, and popups
+	startingWall = new Wall(
+		backgroundOneImg, // image
+		[swedishFlag, eyeGlasses, eyeTest, blanket, fossilsOne], // regions
+		[fossilsOne], // popups
+	);
+	treeWall = new Wall(
+		treeImg, 
+		[],
+		[]
+	);
 
-	regions = [swedishFlag, eyeGlasses, eyeTest, blanket, fossilsOne, downArrow, leftArrow];
-	popups = [fossilsOne];
+	startingWall.setConnectedWalls({left: treeWall, right: null, up: null, down: null})
+	treeWall.setConnectedWalls({left: null, right: startingWall, up: null, down: null})
+//above- for every wall need to set the connected wall.
+
+
+	currentWall = startingWall
 }
 
 const coordinateWidth = 1000;
@@ -68,24 +75,24 @@ const zoom = .005; // zoom step per mouse tick
 
 function draw() {
 	background(255, 255, 255);
-	const scaleFactor = width / backgroundOneImg.width;
-	const backgroundHeight = backgroundOneImg.height * scaleFactor;
-	image(backgroundOneImg, 0, 0, width, backgroundHeight);
+	currentWall.draw()
+
+	const backgroundHeight = currentWall.height;
 
 	coordWidthScaleFactor = coordinateWidth / width;
 	coordHeightScaleFactor = coordinateHeight / backgroundHeight;
 
-	imageWidthScaleFactor = width / backgroundOneImg.width;
-	backgroundHeightScaleFactor = backgroundHeight / backgroundOneImg.height;
+	imageWidthScaleFactor = width / currentWall.image.width;
+	backgroundHeightScaleFactor = backgroundHeight / currentWall.image.height;
 
-	for (const region of regions) {
+	for (const region of currentWall.regions) {
 		if (region.visible) {
 			region.draw();
 		}
 	}
 
-	if (currentPopup != null) {
-		currentPopup.draw();
+	if (currentWall.currentPopup != null) {
+		currentWall.currentPopup.draw();
 	}
 
 	textSize(backgroundHeight / 30);
@@ -104,10 +111,10 @@ function windowResized() {
 }
 
 function mouseMoved() {
-	if (currentPopup == null) {
+	if (currentWall && currentWall.currentPopup == null) {
 		const x = getMouseX();
 		const y = getMouseY();
-		for (const region of regions) {
+		for (const region of currentWall.regions) {
 			if (region.isWithin(x, y) && region.visible) {
 				region.mouseOver = true;
 			} else {
@@ -120,10 +127,10 @@ function mouseMoved() {
 function mousePressed() {
 	const x = getMouseX();
 	const y = getMouseY();
-	if (currentPopup == null) {
+	if (currentWall.currentPopup == null) {
 
 		let foundRegion = false;
-		for (const region of regions) {
+		for (const region of currentWall.regions) {
 			if (region.isWithin(x, y) && region.visible && region.clickCallback) {
 				region.clickCallback(region);
 				foundRegion = true;
@@ -134,55 +141,107 @@ function mousePressed() {
 			statusText = "";
 		}
 	} else {
-		if (!currentPopup.isWithin(x, y)) {
-			setPopup(null);
+		if (!currentWall.currentPopup.isWithin(x, y)) {
+			currentWall.setPopup(null);
 		}
 	}
 }
 
 function mouseDragged() {
-	if (currentPopup) {
-		currentPopup.tox += getMouseX() - pmouseX * coordWidthScaleFactor;
-		currentPopup.toy += getMouseY() - pmouseY * coordHeightScaleFactor;
+	if (currentWall.currentPopup) {
+		currentWall.currentPopup.tox += getMouseX() - pmouseX * coordWidthScaleFactor;
+		currentWall.currentPopup.toy += getMouseY() - pmouseY * coordHeightScaleFactor;
 
-		currentPopup.tox = Math.min(currentPopup.tox, coordinateWidth - currentPopup.width * 0.3);
-		currentPopup.toy = Math.min(currentPopup.toy, coordinateHeight - currentPopup.height * 0.3);
-		currentPopup.tox = Math.max(currentPopup.tox, currentPopup.width * -0.7);
-		currentPopup.toy = Math.max(currentPopup.toy, currentPopup.height * -0.7);
+		currentWall.currentPopup.tox = Math.min(currentWall.currentPopup.tox, coordinateWidth - currentWall.currentPopup.width * 0.3);
+		currentWall.currentPopup.toy = Math.min(currentWall.currentPopup.toy, coordinateHeight - currentWall.currentPopup.height * 0.3);
+		currentWall.currentPopup.tox = Math.max(currentWall.currentPopup.tox, currentWall.currentPopup.width * -0.7);
+		currentWall.currentPopup.toy = Math.max(currentWall.currentPopup.toy, currentWall.currentPopup.height * -0.7);
 	}
 }
 
 function mouseWheel(event) {
-	if (currentPopup) {
+	if (currentWall.currentPopup) {
 	  const e = -event.delta;
 
 	  if (e > 0) { // zoom in
-	  	// if (currentPopup.tow > width * 4) return; // min zoom
+	  	// if (currentWall.currentPopup.tow > width * 4) return; // min zoom
 	    for (let i = 0; i < e; i++) {
-	      if (currentPopup.tow > width * 4) return; // max zoom
-	      currentPopup.tox -= zoom * (getMouseX() - currentPopup.tox);
-	      currentPopup.toy -= zoom * (getMouseY() - currentPopup.toy);
-	      currentPopup.tow *= zoom + 1;
-	      currentPopup.toh *= zoom + 1;
+	      if (currentWall.currentPopup.tow > width * 4) return; // max zoom
+	      currentWall.currentPopup.tox -= zoom * (getMouseX() - currentWall.currentPopup.tox);
+	      currentWall.currentPopup.toy -= zoom * (getMouseY() - currentWall.currentPopup.toy);
+	      currentWall.currentPopup.tow *= zoom + 1;
+	      currentWall.currentPopup.toh *= zoom + 1;
 	    }
-	  }
+	  } 
 	  
 	  if (e < 0) { // zoom out
 	    for (let i = 0; i < -e; i++) {
-	      if (currentPopup.tow < width / 8) return; // min zoom
-	      currentPopup.tox += zoom / (zoom + 1) * (getMouseX() - currentPopup.tox); 
-	      currentPopup.toy += zoom / (zoom + 1) * (getMouseY() - currentPopup.toy);
-	      currentPopup.toh /= zoom + 1;
-	      currentPopup.tow /= zoom + 1;
+	      if (currentWall.currentPopup.tow < width / 8) return; // min zoom
+	      currentWall.currentPopup.tox += zoom / (zoom + 1) * (getMouseX() - currentWall.currentPopup.tox); 
+	      currentWall.currentPopup.toy += zoom / (zoom + 1) * (getMouseY() - currentWall.currentPopup.toy);
+	      currentWall.currentPopup.toh /= zoom + 1;
+	      currentWall.currentPopup.tow /= zoom + 1;
 	    }
 	  }
 
-	  const minWidth = math.min(currentPopup.width * 0.3, width / 2);
-	  const minHeight = math.min(currentPopup.height * 0.3, height / 2)
-		currentPopup.tox = Math.min(currentPopup.tox, coordinateWidth - minWidth);
-		currentPopup.toy = Math.min(currentPopup.toy, coordinateHeight - minHeight);
-		currentPopup.tox = Math.max(currentPopup.tox, currentPopup.width * -0.7);
-		currentPopup.toy = Math.max(currentPopup.toy, currentPopup.height * -0.7);
+	  const minWidth = Math.min(currentWall.currentPopup.width * 0.3, width / 2);
+	  const minHeight = Math.min(currentWall.currentPopup.height * 0.3, height / 2)
+		currentWall.currentPopup.tox = Math.min(currentWall.currentPopup.tox, coordinateWidth - minWidth);
+		currentWall.currentPopup.toy = Math.min(currentWall.currentPopup.toy, coordinateHeight - minHeight);
+		currentWall.currentPopup.tox = Math.max(currentWall.currentPopup.tox, currentWall.currentPopup.width * -0.7);
+		currentWall.currentPopup.toy = Math.max(currentWall.currentPopup.toy, currentWall.currentPopup.height * -0.7);
+	}
+}
+
+class Wall {
+	constructor(image, regions, popups) {
+		this.image = image;
+		this.regions = regions;
+		this.popups = popups;
+	}
+
+	draw() {
+		const scaleFactor = width / this.image.width;
+		this.height = this.image.height * scaleFactor;
+		image(this.image, 0, 0, width, this.height);	
+	}
+
+	setPopup(newPopup) {
+		this.currentPopup = newPopup;
+		for (const popup of this.popups) {
+			if (popup != newPopup) {
+				popup.hide();
+			}
+		}
+	}
+
+	setConnectedWalls(walls) {
+		this.connectedWalls = walls;
+
+		if (this.connectedWalls.left) {
+			const leftArrow = new Region(leftArrowImg, 15, 252, 50, 40, true, (region) => {
+				currentWall = this.connectedWalls.left;
+			});
+			this.regions.push(leftArrow);
+		}
+		if (this.connectedWalls.right) {
+			const rightArrow = new Region(rightArrowImg, 915, 252, 50, 40, true, (region) => {
+				currentWall = this.connectedWalls.right;
+			});
+			this.regions.push(rightArrow);
+		}
+		if (this.connectedWalls.up) {
+			const upArrow = new Region(upArrowImg, 440, 10, 45, null, true, (region) => {
+				currentWall = this.connectedWalls.down;
+			});
+			this.regions.push(upArrow);
+		}
+		if (this.connectedWalls.down) {
+			const downArrow = new Region(downArrowImg, 440, 470, 45, null, true, (region) => {
+				currentWall = this.connectedWalls.down;
+			});
+			this.regions.push(downArrow);
+		}
 	}
 }
 
@@ -289,13 +348,4 @@ function getMouseX() {
 function getMouseY() {
 	// gets mouse y coordinate in terms of grid
 	return mouseY * coordHeightScaleFactor;
-}
-
-function setPopup(newPopup) {
-	currentPopup = newPopup;
-	for (const popup of popups) {
-		if (popup != newPopup) {
-			popup.hide();
-		}
-	}
 }
