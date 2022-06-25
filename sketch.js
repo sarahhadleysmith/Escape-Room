@@ -10,7 +10,7 @@ function preload() {
 	downArrowImg = loadImage('imgs/downArrow.jpg');
 	leftArrowImg = loadImage('imgs/leftArrow.jpg');
 }
-
+//hi
 let regions = [];
 let popups = [];
 function setup() {
