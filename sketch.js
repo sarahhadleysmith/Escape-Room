@@ -1,7 +1,7 @@
 //hide all popups when clicking, make set popup function
 
 let backgroundOneImg, swedishFlagImg, eyeGlassesImg, fossilsOneImg,
-	downArrowImg, leftArrowImg, upArrowImg, rightArrowImg, tree;
+	downArrowImg, leftArrowImg, upArrowImg, rightArrowImg, tree, floorOne, pageOne, pageTwo, numberLockLock, pageTwoCont;
 //you can add your other images here
 function preload() {
 	backgroundOneImg = loadImage('imgs/wallOnefin.jpg');
@@ -13,8 +13,14 @@ function preload() {
 	upArrowImg = loadImage('imgs/upArrow.jpg');
 	rightArrowImg = loadImage('imgs/rightArrow.jpg');
 	treeImg = loadImage('imgs/tree.jpg')
+	floorOneImg = loadImage('imgs/floorOneB.jpg')
+	pageOneImg = loadImage('imgs/swedishPageone.jpg')
+	pageTwoImg = loadImage('imgs/secondPage.jpg')
+	numberLockImg = loadImage('imgs/numberLocks.jpg')
+	pageTwoContImg = loadImage('imgs/swedishPageTwonew.jpg')
 }
 
+let canSee = false;
 let currentWall;
 function setup() {
 	createCanvas(windowWidth, windowHeight);
@@ -22,16 +28,18 @@ function setup() {
 	coordWidthScaleFactor = coordinateWidth / width;
 
 	const swedishFlag = new Region(swedishFlagImg, 800, 83, 110, null, true, (region) => {
-		statusText = "Vad är detta?";
+		statusText = "Sex!?";
 		region.hide();
 	});
 	const eyeGlasses = new Region(eyeGlassesImg, 879, 438, 50, null, false, (region) => {
 		statusText = "*You put on the glasses*";
+		canSee = true;
 		region.hide();
+	//	startingWall.setConnectedWalls({left: treeWall});
 	});
 	const eyeTest = new Region(null, 281, 272, 95, 135, true, (region) => {
-		statusText = "Blind as a bat";
-		currentWall.setPopup(fossilsOne);
+		statusText = "It sounds like a sheet of paper, but I guess you're referring to what's on the sheet of paper.";
+	//	currentWall.setPopup(fossilsOne);
 	});
 	const blanket = new Region(null, 732, 433, 196, 88, true, (region) => {
 		region.hide(); // this stops the region from being magnified on hover
@@ -40,24 +48,72 @@ function setup() {
 	});
 	const fossilsOne = new Popup(fossilsOneImg);
 	//for each wall, need to put the image, regions, and popups
-	startingWall = new Wall(
+	let startingWall = new Wall(
 		backgroundOneImg, // image
 		[swedishFlag, eyeGlasses, eyeTest, blanket, fossilsOne], // regions
 		[fossilsOne], // popups
 	);
-	treeWall = new Wall(
+	let treeWall = new Wall(
 		treeImg, 
 		[],
 		[]
 	);
+	const swedishBook = new Region(null, 350, 235, 80, 75, true, (region) => {
+		if (canSee){
+			statusText = "The language of the Swedish Chef";
+			floorWall.setPopup(pageOne);
+		} else {
+			statusText = "There is a page here, but it is too blury to read"; 
+		}
+	});
+	const swedishSecondPage = new Region(pageTwoImg, 190, 289, 60, 70, true, (region) => {
+		if (canSee){
+			statusText = "Did Greta Thunberg write this?";
+			floorWall.setPopup(pageTwo);
+		} else {
+			statusText = "What are these squiggles?"; 
+		}
+	});
+	const numberLock = new Region(null, 470, 315, 156, 85, true, (region) => {
+		if (canSee){
+			statusText = "What could be the combination?";
+			floorWall.setPopup(numberLockLock);
+			setTimeout(function() {
+				let numbers = prompt("Enter the Combination", "x/x/x"); 		
+				switch(numbers){
+					case "8/5/6":
+						statusText = "The lock unlocks!";
+						startingWall.setConnectedWalls({left: treeWall});
+						break;
+					case "no":
+						statusText = "Nothing happens... wrong combination";
+						break;
+				}
+			}, 1250);
+		} else {
+			statusText = "Your foot is chained up!"; 
+		}	
+	});
+	const pageOne = new Popup(pageOneImg);
+	const pageTwo = new Popup(pageTwoContImg);
+	const numberLockLock = new Popup(numberLockImg);
 
-	startingWall.setConnectedWalls({left: treeWall, right: null, up: null, down: null})
-	treeWall.setConnectedWalls({left: null, right: startingWall, up: null, down: null})
+	floorWall = new Wall(
+		floorOneImg,
+		[swedishBook, numberLock, swedishSecondPage], 
+		[pageOne, pageTwo],
+	);
+
+	startingWall.setConnectedWalls({down: floorWall})
+	treeWall.setConnectedWalls({right: startingWall})
+	floorWall.setConnectedWalls({up: startingWall})
+
 //above- for every wall need to set the connected wall.
 
 
 	currentWall = startingWall
 }
+
 
 const coordinateWidth = 1000;
 const coordinateHeight = 2115*1000/3899; // about 542.44
@@ -198,6 +254,7 @@ class Wall {
 		this.image = image;
 		this.regions = regions;
 		this.popups = popups;
+		this.connectedWalls = {left: null, right: null, up: null, down: null}
 	}
 
 	draw() {
@@ -216,31 +273,33 @@ class Wall {
 	}
 
 	setConnectedWalls(walls) {
-		this.connectedWalls = walls;
-
-		if (this.connectedWalls.left) {
+		if (walls.left) {
 			const leftArrow = new Region(leftArrowImg, 15, 252, 50, 40, true, (region) => {
 				currentWall = this.connectedWalls.left;
 			});
 			this.regions.push(leftArrow);
+			this.connectedWalls.left = walls.left;
 		}
-		if (this.connectedWalls.right) {
+		if (walls.right) {
 			const rightArrow = new Region(rightArrowImg, 915, 252, 50, 40, true, (region) => {
 				currentWall = this.connectedWalls.right;
 			});
 			this.regions.push(rightArrow);
+			this.connectedWalls.right = walls.right;
 		}
-		if (this.connectedWalls.up) {
+		if (walls.up) {
 			const upArrow = new Region(upArrowImg, 440, 10, 45, null, true, (region) => {
-				currentWall = this.connectedWalls.down;
+				currentWall = this.connectedWalls.up;
 			});
 			this.regions.push(upArrow);
+			this.connectedWalls.up = walls.up;
 		}
-		if (this.connectedWalls.down) {
+		if (walls.down) {
 			const downArrow = new Region(downArrowImg, 440, 470, 45, null, true, (region) => {
 				currentWall = this.connectedWalls.down;
 			});
 			this.regions.push(downArrow);
+			this.connectedWalls.down = walls.down;
 		}
 	}
 }
@@ -288,7 +347,7 @@ class Region {
 				const sourceY = actualY / backgroundHeightScaleFactor;
 				const sourceWidth = this.width / coordWidthScaleFactor / imageWidthScaleFactor;
 				const sourceHeight = this.height / coordHeightScaleFactor / backgroundHeightScaleFactor;
-				image(backgroundOneImg, actualXMagnified, actualYMagnified, actualRegionWidth, actualRegionHeight, sourceX, sourceY, sourceWidth, sourceHeight);
+				image(currentWall.image, actualXMagnified, actualYMagnified, actualRegionWidth, actualRegionHeight, sourceX, sourceY, sourceWidth, sourceHeight);
 			}
 		} else {
 			if (this.image != null) {
