@@ -32,7 +32,7 @@ function preload() {
 	boarPaintImg = loadImage('imgs/boarPaint.jpg')
 	thirdWallImg = loadImage('imgs/thirdWall.jpg')
 	wallFourImg = loadImage('imgs/wallFour.jpg')
-	andesiteImg = loadImage('imgs/Andesite.png')
+	andesiteImg = loadImage('imgs/Andesite.PNG')
 	dioriteImg = loadImage('imgs/Diorite.png')
 	basaltImg = loadImage('imgs/Basalt.png')
 	calciteImg = loadImage('imgs/Calcite.png')
