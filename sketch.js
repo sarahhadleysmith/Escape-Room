@@ -45,7 +45,7 @@ function preload() {
 	mineralPaperPaperImg = loadImage('imgs/mineralSheet.jpg')
 	wallFiveImg = loadImage('imgs/wallFiveTwo.jpg')
 	exitDoorImg = loadImage('imgs/exitDoor.jpg')
-	quartzRoomImg = loadImage('imgs/quartzRoom.jpg')
+	quartzRoomImg = loadImage('imgs/quartzRoom2.jpg')
 	floorFourImg = loadImage('imgs/floorFour3.jpg')
 	colorLockImg = loadImage('imgs/colorLock.jpg')
 	exitImg = loadImage('imgs/exit.jpg')
