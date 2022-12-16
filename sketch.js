@@ -1,7 +1,7 @@
 //hide all popups when clicking, make set popup function
 
 let backgroundOneImg, swedishFlagImg, eyeGlassesImg, fossilsOneImg,
-	downArrowImg, leftArrowImg, upArrowImg, rightArrowImg, tree, floorOne, pageOne, pageTwo, numberLockLock, pageTwoCont, boarImg, pImg, infoImg, boarMemeImg, info2Img, floorTwoImg, wikiImg, swedishLetterImg, mineralSheet, boarPaintImg, thirdWallImg, wallFourImg, andesiteImg, dioriteImg, basaltImg, calciteImg, calciteCompImg, helpTwoImg, helpThreeImg, floorThreeImg, wheelImg, mineralPaperImg, mineralPaperPaperImg, wallFiveImg, exitDoorImg, quartzRoomImg, floorFourImg, colorLockImg, exitImg, blackScreenImg; //put commas in between the these 
+	downArrowImg, leftArrowImg, upArrowImg, rightArrowImg, tree, floorOne, pageOne, pageTwo, numberLockLock, pageTwoCont, boarImg, pImg, infoImg, boarMemeImg, info2Img, floorTwoImg, wikiImg, swedishLetterImg, mineralSheet, boarPaintImg, thirdWallImg, wallFourImg, andesiteImg, dioriteImg, basaltImg, calciteImg, calciteCompImg, helpTwoImg, helpThreeImg, floorThreeImg, wheelImg, mineralPaperImg, mineralPaperPaperImg, wallFiveImg, exitDoorImg, quartzRoomImg, floorFourImg, colorLockImg, exitImg, blackScreenImg, endScreenImg, computerPassword2Img; //put commas in between the these 
 //you can add your other images here
 function preload() {
 	backgroundOneImg = loadImage('imgs/wallOnefin.jpg');
@@ -50,6 +50,8 @@ function preload() {
 	colorLockImg = loadImage('imgs/colorLock.jpg')
 	exitImg = loadImage('imgs/exit.jpg')
 	blackScreenImg = loadImage('imgs/blackScreen.jpg')
+	endScreenImg = loadImage('imgs/endScreen.jpg')
+	computerPassword2Img = loadImage('imgs/computerPassword2.JPG')
 }
 
 let canSee = false;
@@ -70,7 +72,11 @@ function setup() {
 	//	startingWall.setConnectedWalls({left: treeWall});
 	});
 	const eyeTest = new Region(null, 281, 272, 95, 135, true, (region) => {
-		statusText = "I can't see anything without my glasses!"; 
+		if (canSee){
+			statusText = "20/20 vision!";
+		} else {
+			statusText = "I can't see anything without my glasses!"; 
+		}
 	//	currentWall.setPopup(fossilsOne);
 	});
 	const blanket = new Region(null, 732, 433, 196, 88, true, (region) => {
@@ -90,8 +96,6 @@ function setup() {
 		statusText = "Is that boar named Galena?";
 		region.hide();
 	});
-
-	
 
 	const boarMem = new Region(boarMemeImg, 90, 100, 225, 177, true, (region) => {
 		statusText = "Boar Vessel 600-500 BC Estruscan Ceramic";
@@ -180,7 +184,7 @@ function setup() {
 
 	const mineralPage = new Region(null, 238, 227, 100, 70, true, (region) => {
 		floorTwo.setPopup(mineral);
-		statusText = "This could be helpful if we suck at identifying minerals."; 
+		statusText = "I'm not sure if this will be helpful, but it is here if we want it."; 
 	});
 
 	const swedishLetterPop = new Popup(swedishLetterImg);
@@ -261,12 +265,12 @@ function setup() {
 	});
 
 	const helpThree = new Region(null, 707, 450, 130, 25, true, (region) => {
-		statusText = "These websites would be useful if we need help identifying a mineral."; 
+		statusText = "These websites might be useful if we suck at identifying a mineral."; 
 		wallThree.setPopup(helpThreeLink);
 	});
 	
 
-	const newInfo = new Popup(infoImg);
+	const newInfo = new Popup(computerPassword2Img);
 
 	const newinfo22 = new Popup(info2Img);
 
@@ -292,7 +296,7 @@ function setup() {
 	);
 
 	const wheelWheel = new Region(null, 442, 220, 165, 90, true, (region) => {
-		statusText = "This looks like a puzzle key with a middle wheel that is supposed to spin."; 
+		statusText = "This looks like a puzzle key with a middle wheel that is supposed to spin. We can spin it mentally."; 
 		floorThree.setPopup(wheel);
 	});
 
@@ -316,7 +320,7 @@ function setup() {
 			statusText = "You open the door and exit!";
 			wallFive.setPopup(end);
 			setTimeout(function() {
-				prompt("If you email your address to sarsar at sarahhadleysmith@gmail.com, she will mail you a small holiday present.");
+				alert("Happy Holidays! -Sarsar");
 			}, 1250);
 
 		} else if (drawerKey && chestKey){
@@ -345,8 +349,8 @@ function setup() {
 
 	const book4 = new Region(null, 147, 97, 10, 65, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -356,16 +360,16 @@ function setup() {
 
 	const book6 = new Region(null, 110, 188, 10, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
 
 	const book7 = new Region(null, 131, 188, 10, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -423,8 +427,8 @@ function setup() {
 
 	const book25 = new Region(null, 125, 275, 16, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -434,24 +438,24 @@ function setup() {
 
 	const book27 = new Region(null, 163, 271, 10, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
 
 	const book28 = new Region(null, 163, 270, 10, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
 
 	const book29 = new Region(null, 245, 270, 14, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -473,8 +477,8 @@ function setup() {
 
 	const book35 = new Region(null, 323, 273, 10, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -493,8 +497,8 @@ function setup() {
 
 	const book40 = new Region(null, 272, 365, 10, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -519,16 +523,16 @@ function setup() {
 
 	const book47 = new Region(null, 111, 449, 12, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
 
 	const book48 = new Region(null, 132, 449, 10, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -556,8 +560,8 @@ function setup() {
 
 	const book56 = new Region(null, 234, 450, 17, 70, true, (region) => { 
 		redBooks += 1;
-		if (redBooks == 12){
-			statusText = "The bookcase opens to a secret room!";
+		if (redBooks >= 12){
+			statusText = "The bookcase opens to a secret room! Are those all the same type of mineral?";
 			wallFive.setPopup(qRoom);
 		}
 	});
@@ -567,7 +571,7 @@ function setup() {
 
 	const qRoom = new Popup(quartzRoomImg);
 
-	const end = new Popup(blackScreenImg);
+	const end = new Popup(endScreenImg);
 
 	wallFive = new Wall(
 		wallFiveImg, 
@@ -580,14 +584,14 @@ function setup() {
 		statusText = "There is a strange lock on this chest. You should type out the correct colors in each row."; 
 		floorFour.setPopup(colorLock);
 			setTimeout(function() {
-				let numbers = prompt("Enter the correct colors in order", "x, x, x, x, x, x"); 		
+				let numbers = prompt("Enter the two colors that go with each icon. (Enter the colors in the order they are on this lock (left to right, top to bottom)). (Just enter the first letter of the color.) (The last color is purple, not violet.)", "x, x, x, x, x, x"); 		
 				switch(numbers){
-					case "yellow, blue, purple, green, purple, red":
+					case "y, b, g, p, r, p":
 						statusText = "The lock unlocks! There is a key inside! I wonder what this key opens?";
 						drawerKey = true;
 						break;
 					default:
-						statusText = "Nothing happens. That must be the wrong combination.";
+						statusText = "Nothing happens. That must be the wrong combination. Maybe that puzzle key wheel in the previous room would be helpful.";
 				}
 			}, 1250);
 	});
@@ -669,10 +673,11 @@ function draw() {
 	text(statusText, width / 2, backgroundHeight + 10)
 
 	// For debugging
-	const coordinates = Math.round(getMouseX()) + ", " + Math.round(getMouseY());
+	/*const coordinates = Math.round(getMouseX()) + ", " + Math.round(getMouseY());
 	textSize(20);
 	textAlign(LEFT, TOP);
 	text(coordinates, 10, backgroundHeight + 10)
+	*/
 }
 
 function windowResized() {
